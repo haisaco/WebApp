@@ -1,0 +1,60 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Firebase App</title>
+</head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- AngularJS -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+<!-- Firebase -->
+<script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
+<!-- AngularFire -->
+<script src="https://cdn.firebase.com/libs/angularfire/0.9.0/angularfire.min.js"></script>
+ 
+<body ng-app="app">
+    <h1>App chat online</h1>
+    <div ng-controller="chatCtrl" style="margin: 10 10 10;">
+        <div id="chatBox" style="padding: 10px; border: black 1px solid">
+            <h1>Chat box</h1>
+            <div ng-repeat="chatMessage in chatMessages | limitTo:-15"> 
+				<span style="font-weight: bold">{{chatMessage.name}}</span> : <span>{{chatMessage.message}}</span>
+            </div>
+        </div>
+        <form> <span style="font-weight:bold;">Name: {{name}} <br/><label>Chat:</label>
+            <input type="text" class="form-control" ng-model="chatMessage" /><br/>
+            <button type="submit" class="btn btn-success" ng-click="sendChat()">Send</button>
+        </form>
+    </div>
+</body>
+<script>
+var app = angular.module('app', ['firebase']);
+app.controller('chatCtrl', ['$scope', '$firebase', function($scope, $firebase) {
+    var name = prompt("Enter your name: ", '');
+    $scope.name = name;
+    $scope.chatMessage = "";
+    var ref = new Firebase("https://chatapp-f7830.firebaseio.com/");
+    var sync = $firebase(ref);
+    $scope.chatMessages = sync.$asArray();
+    $scope.sendChat = function() {
+        var chatMessage = {
+            name: name,
+            message: $scope.chatMessage
+        };
+        $scope.chatMessages.$add(chatMessage);
+        $scope.chatMessage = "";
+    }
+    $scope.clear = function() {
+        for(var i = 0; i < $scope.chatMessages.length; i++) {
+            $scope.chatMessages.$remove($scope.chatMessages[i]);
+        }
+    }
+}]);
+</script>
+ 
+</html>
